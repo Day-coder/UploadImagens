@@ -8,7 +8,7 @@ const port= process.env.PORT
 const consStr= process.env.DATABASE_URL
 const pool= new pg.Pool({connectionString:consStr})
 
-
+app.use('/upload,', express.static('upload'))
 
 app.get('/sapatos',(req, res)=>{
     pool.connect((err, client)=>{
@@ -26,6 +26,7 @@ app.get('/sapatos',(req, res)=>{
                 })
 
             }
+          
             return res.status(200).send(result.rows)
         })
     })
@@ -49,7 +50,7 @@ app.get('/sapatos/:idsapato', (req, res)=>{
                 })
 
             }
-            return res.status(200).send(result.rows[0])
+            return res.status(200).send(result.rows[0].productimages[0])
         })
     })
             
@@ -70,7 +71,7 @@ app.post('/upload', uploadUser.array ('imageArray', 3), (req, res)=>{
         const arrayImag = []; //Para retorna as imagens no response
 let i; //indice
 for (i = 0; i<req.files.length; i++) {
- // req.files[i].path
+
   arrayImag.push( req.files[i].path); // adicionando no vetor
 console.log('array :' , arrayImag)
 }
@@ -115,6 +116,42 @@ console.log('array :' , arrayTam)
     // })
    
 })
+
+
+ 
+
+
+
+app.delete('/sapatos/:idsapato', (req, res)=>{
+    pool.connect((err, client)=>{
+        if(err){
+            return res.status(401).send({
+                message: 'Erro ao conectar'
+            })
+        }
+
+        client.query('delete from product where productCode=$1',[req.params.idsapato], (error, result)=>{
+            if(error){
+                res.send({
+                    message: 'Erro ao buscar dados',
+                    erro: error.message
+                })
+
+            }
+        
+            return res.status(200).send({
+                message: 'Excluido com sucesso'
+            })
+        })
+    })
+            
+ })
+
+
+
+
+
+
 
 
 
